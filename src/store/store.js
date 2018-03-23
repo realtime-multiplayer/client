@@ -50,6 +50,17 @@ const store = new Vuex.Store({
     },
     standBy (state) {
       state.activemember -= 1
+    },
+    updateuser (state, payload) {
+      for (let i = 0; i < state.usermember.length; i++) {
+        let start = i * 2
+        let end = start + 2
+        let cards = []
+        for(let j = start; j < end; j++){
+          cards.push(payload[j])
+        }
+        state.usermember[i]['cards'] = cards  
+      }
     }
   },
   actions: {

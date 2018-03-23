@@ -66,7 +66,6 @@ export default {
         // Check User In Firebase
         console.log('joining room')
         if (this.usermember.length < 4) {
-          console.log('emitting..')
           this.$socket.emit('joinuser', {room: 'getthebunny', username: this.username})
           this.$socket.on('receivemessage', (value) => {
             let submitUser = {
