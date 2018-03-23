@@ -59,6 +59,7 @@ export default {
     opponentStand (payload) {
       console.log(payload.username + ' is standing by')
       this.$store.dispatch('dispatchTurn')
+      this.$store.dispatch('dispatchStandBy')
     }
   },
   methods: {
@@ -87,6 +88,9 @@ export default {
       if (this.whoseTurn === this.username) {
         this.$socket.emit('hit', {username: this.username})
         this.$store.dispatch('dispatchTurn')
+        // get new card
+        let index = Math.ceil(Math.random() * this.cards.length)
+        this.mycard.push(this.cards[index])
       }
     },
     stand () {
@@ -94,6 +98,7 @@ export default {
       this.$socket.emit('stand', {username: this.username})
       this.standStatus = true
       this.$store.dispatch('dispatchTurn')
+      this.$store.dispatch('dispatchStandBy')
     }
   },
   created: function () {
@@ -105,10 +110,28 @@ export default {
         console.log(this.users)
       })
     })
+    this.$store.dispatch('dispatchActive')
   },
-  computed: mapState([
-    'cards', 'usermember', 'turn', 'whoseTurn'
-  ])
+  computed: {
+    ...mapState([
+      'cards', 'usermember', 'turn', 'whoseTurn'
+    ]),
+    currentVal () {
+      let value = 0
+      this.card.forEach(item => {
+        value += item.value
+      })
+      return value
+    }
+  },
+  watch: {
+    currentVal (val) {
+      if (val >= 21) {
+        this.stand()
+        console.log('standing automatically')
+      }
+    }
+  }
 }
 </script>
 
