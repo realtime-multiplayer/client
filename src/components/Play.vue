@@ -1,8 +1,16 @@
 <template>
   <div class="background">
+
     <div class="col-lg-1"></div>
     <div class="col-lg-10">
       <button v-on:click="play" class="btn btn-primary">Ready</button>
+      <div class="row justify-content-center" id="control">
+      <div class="col-lg">
+        <button class="btn" v-on:click="hitCard" type="button" name="button" id="hit">Hit</button>
+        <button class="btn" v-on:click="stand" type="button" name="button" id="stand">Stand</button>
+        <button class="btn" type="button" name="button" id="newgame">Start New game</button>
+      </div>
+    </div>
       <div class="content-nest">
         <div v-for="(user, i) in users" :key="i" class="user col-lg-6">
           <div class="username">
@@ -18,6 +26,7 @@
       </div>
     </div>
     <div class="col-lg-1"></div>
+
   </div>
 </template>
 
@@ -29,7 +38,27 @@ export default {
   data: function () {
     return {
       mycard: [],
-      users: []
+      users: [],
+      standStatus: false
+    }
+  },
+  sockets: {
+    drawCard (payload) {
+      // received after 'hit'
+      console.log(this.turn)
+      // this.cardInHand.push(payload)
+    },
+    standingBy (payload) {
+      console.log(payload)
+      console.log('standing by')
+    },
+    opponentDraw (payload) {
+      console.log(payload.username + ' has drawn a card')
+      this.$store.dispatch('dispatchTurn')
+    },
+    opponentStand (payload) {
+      console.log(payload.username + ' is standing by')
+      this.$store.dispatch('dispatchTurn')
     }
   },
   methods: {
@@ -50,6 +79,21 @@ export default {
         }
       }
       this.mycard = card
+    },
+    hitCard () {
+      if (this.standStatus === true) {
+        return
+      }
+      if (this.whoseTurn === this.username) {
+        this.$socket.emit('hit', {username: this.username})
+        this.$store.dispatch('dispatchTurn')
+      }
+    },
+    stand () {
+      // disable hit button
+      this.$socket.emit('stand', {username: this.username})
+      this.standStatus = true
+      this.$store.dispatch('dispatchTurn')
     }
   },
   created: function () {
@@ -63,7 +107,7 @@ export default {
     })
   },
   computed: mapState([
-    'cards','usermember'
+    'cards', 'usermember', 'turn', 'whoseTurn'
   ])
 }
 </script>
