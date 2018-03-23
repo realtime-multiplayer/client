@@ -3,24 +3,25 @@
 
     <div class="col-lg-1"></div>
 
-    <div class="col-lg-10">
+    <div v-if="users.length === 4" class="col-lg-10">
       <div class="row justify-content-center" id="control">
-      <div class="col-lg">
-        <button class="btn" v-on:click="hitCard" type="button" name="button" id="hit">Hit</button>
-        <button class="btn" v-on:click="stand" type="button" name="button" id="stand">Stand</button>
-        <button v-on:click="play" class="btn btn-primary">Ready</button>
-      </div>
-    </div>
-      <div class="content-nest">
-        <div v-for="(user, i) in users" :key="i" class="user col-lg-6">
-          
-          <div class="username">
-            <h4 class="username-font">{{user.name}}</h4>
-          </div>
-          <div class="cards-all">
-            <div v-for="(card, i) in user.cards" :key=i class="cards">
-              <img v-if="card !== ''" class="card-img-top img-fluid" :src="card.image" alt="Card image cap">
-              <div v-else></div>
+        
+        <div class="col-lg">
+          <button v-on:click="gameplay">Play</button>
+          <button class="btn" v-on:click="hitCard" type="button" name="button" id="hit">Hit</button>
+          <button class="btn" v-on:click="stand" type="button" name="button" id="stand">Stand</button>
+          <button v-on:click="play" class="btn btn-primary">Ready</button>
+        </div>
+        <div class="content-nest">
+          <div v-for="(u, i) in usermember" :key="i" class="user col-lg-6">   
+            <div class="username">
+              <h4 class="username-font">{{u.name}}</h4>
+            </div>
+            <div class="cards-all">
+              <div v-for="(card, i) in u.cards" :key=i class="cards">
+                <img v-if="card !== ''" class="card-img-top img-fluid" :src="card.image" alt="Card image cap">
+                <div v-else></div>
+              </div>
             </div>
           </div>
         </div>
@@ -46,20 +47,15 @@ import routes from '@/router'
 export default {
   data: function () {
     return {
-
-      users: []
-
+      users: [],
       mycard: [],
       users: [],
-      standStatus: false
+      standStatus: false,
+      return: 0,
+      status: false
     }
   },
   sockets: {
-    drawCard (payload) {
-      // received after 'hit'
-      console.log(this.turn)
-      // this.cardInHand.push(payload)
-    },
     standingBy (payload) {
       console.log(payload)
       console.log('standing by')
@@ -72,7 +68,9 @@ export default {
       console.log(payload.username + ' is standing by')
       this.$store.dispatch('dispatchTurn')
       this.$store.dispatch('dispatchStandBy')
-
+    },
+    getcards (value) {
+      this.$store.commit('updateuser', value)
     }
   },
   methods: {
@@ -95,16 +93,24 @@ export default {
       this.mycard = card
     },
     hitCard () {
+      this.$socket.emit('hit', 'what is my socket id')
+      this.$socket.on('drawCard', (value)=>{
+        if(value.socketid === this.users[this.return]) {
+          console.log('heyy')
+        }
+      })
       if (this.standStatus === true) {
         return
       }
-      if (this.whoseTurn === this.username) {
-        this.$socket.emit('hit', {username: this.username})
-        this.$store.dispatch('dispatchTurn')
-        // get new card
-        let index = Math.ceil(Math.random() * this.cards.length)
-        this.mycard.push(this.cards[index])
-      }
+      const index = Math.floor(Math.random() * this.cards.length)
+      const card = this.cards[index]
+      // if (this.whoseTurn === this.username) {
+      
+      // this.$store.dispatch('dispatchTurn')
+      // // get new card
+      // let index = Math.ceil(Math.random() * this.cards.length)
+      // this.mycard.push(this.cards[index])
+      // }
     },
     stand () {
       // disable hit button
@@ -112,10 +118,9 @@ export default {
       this.standStatus = true
       this.$store.dispatch('dispatchTurn')
       this.$store.dispatch('dispatchStandBy')
-    }
-  },
-  created: function () {
-    axios.get('http://localhost:3000/cards/show').then(response => {
+    },
+    gameplay () {
+      axios.get('http://localhost:3000/cards/show').then(response => {
       this.$store.commit('getcard', response.data.data)
       axios.get('http://localhost:3000/cards/getPlayer').then(response2 => {
         if(response2.data.data === null){
@@ -123,21 +128,8 @@ export default {
             path: '/'
           })
         }else{
+          this.$socket.emit('getrandom', (this.cards))
           this.$store.commit('getuser', response2.data.data)
-          this.users = this.usermember
-          for (let i = 0; i < this.users.length; i++) {
-            let cards = []
-            for (let j = 0; j < 4; j ++){
-              if (j < 2) {
-                let index = Math.ceil(Math.random() * this.cards.length)
-                cards.push(this.cards[index])
-              }else{
-                cards.push('')
-              }
-            }
-            this.users[i]['cards'] = cards
-          }
-          console.log(this.users)
         }
       }).catch((err => {
         res.send(err)
@@ -145,6 +137,23 @@ export default {
     }).catch((err)=> {
       res.send(err)
     })
+    }
+  },
+  created: function () {
+      axios.get('http://localhost:3000/cards/getPlayer').then(response2 => {
+        if(response2.data.data === null){
+          return routes.push({
+            path: '/'
+          })
+        }else{
+          this.$store.commit('getuser', response2.data.data)
+          console.log(this.usermember)
+          this.users = this.usermember
+          
+        }
+      }).catch((err => {
+        res.send(err)
+      }))
     this.$store.dispatch('dispatchActive')
   },
   computed: {
@@ -160,12 +169,15 @@ export default {
     }
   },
   watch: {
-    currentVal (val) {
-      if (val >= 21) {
-        this.stand()
-        console.log('standing automatically')
-      }
-    }
+    // currentVal (val) {
+    //   if (val >= 21) {
+    //     this.stand()
+    //     console.log('standing automatically')
+    //   }
+    // },
+    // users () {
+    //   this.status = true
+    // }
   }
 }
 </script>
