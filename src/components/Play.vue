@@ -3,12 +3,11 @@
 
     <div class="col-lg-1"></div>
     <div class="col-lg-10">
-      <button v-on:click="play" class="btn btn-primary">Ready</button>
       <div class="row justify-content-center" id="control">
       <div class="col-lg">
         <button class="btn" v-on:click="hitCard" type="button" name="button" id="hit">Hit</button>
         <button class="btn" v-on:click="stand" type="button" name="button" id="stand">Stand</button>
-        <button class="btn" type="button" name="button" id="newgame">Start New game</button>
+        <button v-on:click="play" class="btn btn-primary">Ready</button>
       </div>
     </div>
       <div class="content-nest">
