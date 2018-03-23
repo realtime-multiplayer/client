@@ -203,7 +203,7 @@ export default {
     drawCard (payload) {
       // received after 'hit'
       console.log(payload)
-      this.cardInHand.push(payload)
+      // this.cardInHand.push(payload)
     },
     standingBy (payload) {
       console.log(payload)
