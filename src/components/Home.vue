@@ -17,6 +17,7 @@
 </template>
 
 <script>
+import axios from 'axios'
 import { mapState } from 'vuex'
 import routes from '@/router'
 export default {
@@ -25,34 +26,50 @@ export default {
     connect: function () {
     },
     userid: function (userid) {
-      console.log(`Hey somebody has visit this place`)
-      this.currentuserid = userid
+      // First visit get entry id
+      console.log(`Hey somebody has visit this place ${userid}`)
+      this.userid = userid
+    },
+    userdisconnect (userid) {
+      // Sombedy has leave
+      for (let i = 0 ; i < this.usermember.length; i++) {
+        if (this.usermember[i].userid === this.userid) {
+
+        }
+      }
     }
   },
   data () {
     return {
       username: '',
-      currentuserid: ''
+      currentuserid: '',
+      userid: ''
     }
   },
   created () {
-    console.log(this.usercount)
+    // Get Users in Firebase
+    axios.get('http://localhost:3000/cards/getPlayer').then(response => {
+      this.$store.commit('getuser', response.data.data)
+    })
   },
   methods: {
     join () {
       if (this.username === '') {
         alert('Please input username to join')
       } else {
-        if (this.usercount < 5) {
+        // Check User In Firebas
+        if (this.usermember.length < 4) {
           this.$socket.emit('joinuser', {room: 'getthebunny', username: this.username})
-          this.$socket.on('receivemessage', (username) => {
-            console.log()
-            this.$store.commit('getNewuser', {
-              username
-            })
-            console.log(this.usermember)
-            routes.push({
-              path: '/play'
+          this.$socket.on('receivemessage', (value) => {
+            let submitUser = {
+              name: value.username,
+              room: value.room,
+              userid: this.userid
+            }
+            axios.post('http://localhost:3000/cards/addPlayer', submitUser).then(response => {
+              routes.push({
+                path: '/play'
+              })
             })
           })
         }
@@ -60,13 +77,8 @@ export default {
     }
   },
   computed: mapState([
-    'usercount', 'usermember'
+    'usermember'
   ])
-  // {
-  //   userCount () {
-  //     return this.$store.state.usercount
-  //   }
-  // }
 }
 </script>
 
