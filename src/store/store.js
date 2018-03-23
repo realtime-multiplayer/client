@@ -13,17 +13,26 @@ const store = new Vuex.Store({
     usermember: [],
     usercount: 0,
     username: '',
-    whoseTurn: ''
+    whoseTurn: '',
+    cards: []
   },
   mutations: {
-    getNewuser (state, payload) {
-      state.usermember.push(payload.username)
-      state.usercount++
-      state.username = payload.username
+    getcard (state, payload) {
+      let cardsall = []
+      Object.keys(payload).forEach((key, index) => {
+        cardsall.push(payload[key])
+      })
+      state.cards = cardsall
     },
-    replaceUsername (state, payload) {
-      const index = state.usermember.indexOf(payload)
-      state.usermember.splice(index, 1)
+    getuser (state, payload) {
+      let userall = []
+      let firebase = Object.keys(payload)
+      Object.keys(payload).forEach((key, index)=>{
+        let user = payload[key]
+        user['keyfire'] = firebase[index]
+        userall.push(user)
+      })
+      state.usermember = userall
     }
   },
   actions: {
