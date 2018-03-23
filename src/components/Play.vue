@@ -120,9 +120,9 @@ export default {
       this.$store.dispatch('dispatchStandBy')
     },
     gameplay () {
-      axios.get('http://localhost:3000/cards/show').then(response => {
+      axios.get('http://bjserver.agnynureza.online/cards/show').then(response => {
       this.$store.commit('getcard', response.data.data)
-      axios.get('http://localhost:3000/cards/getPlayer').then(response2 => {
+      axios.get('http://bjserver.agnynureza.online/cards/getPlayer').then(response2 => {
         if(response2.data.data === null){
           return routes.push({
             path: '/'
@@ -140,7 +140,7 @@ export default {
     }
   },
   created: function () {
-      axios.get('http://localhost:3000/cards/getPlayer').then(response2 => {
+      axios.get('http://bjserver.agnynureza.online/cards/getPlayer').then(response2 => {
         if(response2.data.data === null){
           return routes.push({
             path: '/'

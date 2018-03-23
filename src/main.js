@@ -6,7 +6,7 @@ import router from './router'
 import store from './store/store.js'
 import VueSocketio from 'vue-socket.io'
 
-const localhost = 'http://localhost:3000'
+const localhost = 'http://bjserver.agnynureza.online'
 Vue.use(VueSocketio, localhost)
 
 Vue.config.productionTip = false
