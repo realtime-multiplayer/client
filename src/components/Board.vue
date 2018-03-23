@@ -159,22 +159,52 @@
     </div>
     <div class="row justify-content-center" id="control">
       <div class="col-lg">
-        <button class="btn" type="button" name="button">Hit</button>
-        <button class="btn" type="button" name="button">Stand</button>
-        <button class="btn" type="button" name="button">Start New game</button>
+        <button class="btn" type="button" name="button" id="hit">Hit</button>
+        <button class="btn" type="button" name="button" id="stand">Stand</button>
+        <button class="btn" type="button" name="button" id="newgame">Start New game</button>
       </div>
     </div>
   </div>
 </template>
 
 <script>
+import { mapState } from 'vuex'
 export default {
   name: 'Board',
   data () {
-
+    return {
+      cardInHand: []
+    }
   },
   computed: {
-
+    ...mapState([
+      'usermember', 'usercount', 'username', 'whoseTurn'
+    ]),
+    currentVal () {
+      let value = 0
+      this.cardInHand.forEach(card => {
+        value += card.value
+      })
+      return value
+    }
+  },
+  methods: {
+    hitCard () {
+      if (this.whoseTurn === this.username) {
+        this.$socket.emit('hit', {username: this.username})
+      }
+    },
+    stand () {
+      // disable hit button
+      this.$socket.emit('stand', {username: this.username})
+    }
+  },
+  sockets: {
+    receivedCard (payload) {
+      // received after 'hit'
+      console.log(payload)
+      this.cardInHand.push(payload)
+    }
   }
 }
 </script>

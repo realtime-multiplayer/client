@@ -12,7 +12,8 @@ const store = new Vuex.Store({
   state: {
     usermember: [],
     usercount: 0,
-    username: ''
+    username: '',
+    whoseTurn: ''
   },
   mutations: {
     getNewuser (state, payload) {
