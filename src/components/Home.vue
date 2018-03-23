@@ -51,7 +51,7 @@ export default {
   },
   created () {
     // Get Users in Firebase
-    axios.get('http://localhost:3000/cards/getPlayer').then(response => {
+    axios.get('http://bjserver.agnynureza.online/cards/getPlayer').then(response => {
       if(response.data.data !== null) {
         this.$store.commit('getuser', response.data.data)
       }
@@ -73,7 +73,7 @@ export default {
               room: value.room,
               userid: this.userid
             }
-            axios.post('http://localhost:3000/cards/addPlayer', submitUser).then(response => {
+            axios.post('http://bjserver.agnynureza.online/cards/addPlayer', submitUser).then(response => {
               routes.push({
                 path: '/play'
               })
