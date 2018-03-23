@@ -13,6 +13,7 @@ const store = new Vuex.Store({
     usermember: [],
     usercount: 0,
     username: '',
+    whoseTurn: '',
     cards: []
   },
   mutations: {

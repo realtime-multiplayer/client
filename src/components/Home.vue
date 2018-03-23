@@ -24,17 +24,21 @@ export default {
   name: 'HelloWorld',
   sockets: {
     connect: function () {
+      console.log('socket connected')
     },
     userid: function (userid) {
       // First visit get entry id
       console.log(`Hey somebody has visit this place ${userid}`)
       this.userid = userid
     },
+    welcome () {
+      console.log('welcome')
+    },
     userdisconnect (userid) {
       // Sombedy has leave
       for (let i = 0 ; i < this.usermember.length; i++) {
         if (this.usermember[i].userid === this.userid) {
-
+        
         }
       }
     }
