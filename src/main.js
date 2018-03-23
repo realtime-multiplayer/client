@@ -4,7 +4,6 @@ import Vue from 'vue'
 import App from './App'
 import router from './router'
 import store from './store/store.js'
-
 import VueSocketio from 'vue-socket.io'
 
 const localhost = 'http://localhost:3000'

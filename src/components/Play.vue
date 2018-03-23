@@ -2,6 +2,7 @@
   <div class="background">
 
     <div class="col-lg-1"></div>
+
     <div class="col-lg-10">
       <div class="row justify-content-center" id="control">
       <div class="col-lg">
@@ -12,15 +13,24 @@
     </div>
       <div class="content-nest">
         <div v-for="(user, i) in users" :key="i" class="user col-lg-6">
+          
           <div class="username">
             <h4 class="username-font">{{user.name}}</h4>
           </div>
           <div class="cards-all">
-            <div v-for="(card, i) in mycard" :key=i class="card">
+            <div v-for="(card, i) in user.cards" :key=i class="cards">
               <img v-if="card !== ''" class="card-img-top img-fluid" :src="card.image" alt="Card image cap">
               <div v-else></div>
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+    <div v-else class="col-lg-10">
+      <h5 class="waitinglist">Waiting List</h5>
+      <div v-for="(user, i) in users" :key="i" class="card col-lg-2">
+         <div class="card-body">
+          <h5 class="card-title">{{user.name}}</h5>
         </div>
       </div>
     </div>
@@ -36,6 +46,9 @@ import routes from '@/router'
 export default {
   data: function () {
     return {
+
+      users: []
+
       mycard: [],
       users: [],
       standStatus: false
@@ -59,6 +72,7 @@ export default {
       console.log(payload.username + ' is standing by')
       this.$store.dispatch('dispatchTurn')
       this.$store.dispatch('dispatchStandBy')
+
     }
   },
   methods: {
@@ -104,10 +118,32 @@ export default {
     axios.get('http://localhost:3000/cards/show').then(response => {
       this.$store.commit('getcard', response.data.data)
       axios.get('http://localhost:3000/cards/getPlayer').then(response2 => {
-        this.$store.commit('getuser', response2.data.data)
-        this.users = this.usermember
-        console.log(this.users)
-      })
+        if(response2.data.data === null){
+          return routes.push({
+            path: '/'
+          })
+        }else{
+          this.$store.commit('getuser', response2.data.data)
+          this.users = this.usermember
+          for (let i = 0; i < this.users.length; i++) {
+            let cards = []
+            for (let j = 0; j < 4; j ++){
+              if (j < 2) {
+                let index = Math.ceil(Math.random() * this.cards.length)
+                cards.push(this.cards[index])
+              }else{
+                cards.push('')
+              }
+            }
+            this.users[i]['cards'] = cards
+          }
+          console.log(this.users)
+        }
+      }).catch((err => {
+        res.send(err)
+      }))
+    }).catch((err)=> {
+      res.send(err)
     })
     this.$store.dispatch('dispatchActive')
   },
@@ -164,12 +200,13 @@ export default {
     font-size: 2em;
     color: white
   }
-  .card{
+  .cards{
     padding: 0;
     margin: 0 5px;
     border: none;
     width: 100px;
     height: 153px;
+    background-color: white;
   }
   .cards-all{
     display: flex;
@@ -191,5 +228,19 @@ export default {
   .btn{
     padding: 5px 20px;
     font-size: 2em;
+  }
+  .card{
+    margin-bottom: 20px;
+  }
+  .card-title{
+    margin-bottom: 0
+  }
+  .waitinglist{
+    text-align: left;
+    font-size: 2em;
+    color: white;
+  }
+  .card-body{
+    padding: 5px 10px
   }
 </style>
