@@ -24,17 +24,20 @@ export default {
   name: 'HelloWorld',
   sockets: {
     connect: function () {
+      console.log('socket connected')
     },
     userid: function (userid) {
       // First visit get entry id
       console.log(`Hey somebody has visit this place ${userid}`)
       this.userid = userid
     },
+    welcome () {
+      console.log('welcome')
+    },
     userdisconnect (userid) {
       // Sombedy has leave
-      for (let i = 0 ; i < this.usermember.length; i++) {
+      for (let i = 0; i < this.usermember.length; i++) {
         if (this.usermember[i].userid === this.userid) {
-
         }
       }
     }
@@ -60,8 +63,10 @@ export default {
       if (this.username === '') {
         alert('Please input username to join')
       } else {
-        // Check User In Firebas
+        // Check User In Firebase
+        console.log('joining room')
         if (this.usermember.length < 4) {
+          console.log('emitting..')
           this.$socket.emit('joinuser', {room: 'getthebunny', username: this.username})
           this.$socket.on('receivemessage', (value) => {
             let submitUser = {

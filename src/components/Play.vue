@@ -1,8 +1,16 @@
 <template>
   <div class="background">
+
     <div class="col-lg-1"></div>
-    <div v-if="users.length === 4" class="col-lg-10">
-      <button v-on:click="play" class="btn btn-primary">Ready</button>
+
+    <div class="col-lg-10">
+      <div class="row justify-content-center" id="control">
+      <div class="col-lg">
+        <button class="btn" v-on:click="hitCard" type="button" name="button" id="hit">Hit</button>
+        <button class="btn" v-on:click="stand" type="button" name="button" id="stand">Stand</button>
+        <button v-on:click="play" class="btn btn-primary">Ready</button>
+      </div>
+    </div>
       <div class="content-nest">
         <div v-for="(user, i) in users" :key="i" class="user col-lg-6">
           
@@ -27,6 +35,7 @@
       </div>
     </div>
     <div class="col-lg-1"></div>
+
   </div>
 </template>
 
@@ -37,7 +46,33 @@ import routes from '@/router'
 export default {
   data: function () {
     return {
+
       users: []
+
+      mycard: [],
+      users: [],
+      standStatus: false
+    }
+  },
+  sockets: {
+    drawCard (payload) {
+      // received after 'hit'
+      console.log(this.turn)
+      // this.cardInHand.push(payload)
+    },
+    standingBy (payload) {
+      console.log(payload)
+      console.log('standing by')
+    },
+    opponentDraw (payload) {
+      console.log(payload.username + ' has drawn a card')
+      this.$store.dispatch('dispatchTurn')
+    },
+    opponentStand (payload) {
+      console.log(payload.username + ' is standing by')
+      this.$store.dispatch('dispatchTurn')
+      this.$store.dispatch('dispatchStandBy')
+
     }
   },
   methods: {
@@ -58,6 +93,25 @@ export default {
         }
       }
       this.mycard = card
+    },
+    hitCard () {
+      if (this.standStatus === true) {
+        return
+      }
+      if (this.whoseTurn === this.username) {
+        this.$socket.emit('hit', {username: this.username})
+        this.$store.dispatch('dispatchTurn')
+        // get new card
+        let index = Math.ceil(Math.random() * this.cards.length)
+        this.mycard.push(this.cards[index])
+      }
+    },
+    stand () {
+      // disable hit button
+      this.$socket.emit('stand', {username: this.username})
+      this.standStatus = true
+      this.$store.dispatch('dispatchTurn')
+      this.$store.dispatch('dispatchStandBy')
     }
   },
   created: function () {
@@ -91,10 +145,28 @@ export default {
     }).catch((err)=> {
       res.send(err)
     })
+    this.$store.dispatch('dispatchActive')
   },
-  computed: mapState([
-    'cards','usermember'
-  ])
+  computed: {
+    ...mapState([
+      'cards', 'usermember', 'turn', 'whoseTurn'
+    ]),
+    currentVal () {
+      let value = 0
+      this.card.forEach(item => {
+        value += item.value
+      })
+      return value
+    }
+  },
+  watch: {
+    currentVal (val) {
+      if (val >= 21) {
+        this.stand()
+        console.log('standing automatically')
+      }
+    }
+  }
 }
 </script>
 
