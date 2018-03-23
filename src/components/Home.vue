@@ -1,0 +1,138 @@
+<template>
+  <div class="background-home">
+    <div class="col-lg-2">
+
+    </div>
+    <div class="col-lg-8">
+      <div class="title">
+        <h1 class="title-font">Black Jack</h1>
+      </div>
+      <div class="input-site">
+        <input v-model="username" class="form-control col-lg-4" type="text" placeholder="Place your name">
+        <button v-on:click="join" class="btn btn-primary">Join</button>
+      </div>
+    </div>
+    <div class="col-lg-2"></div>
+  </div>
+</template>
+
+<script>
+import { mapState } from 'vuex'
+import routes from '@/router'
+export default {
+  name: 'HelloWorld',
+  sockets: {
+    connect: function () {
+    },
+    userid: function (userid) {
+      console.log(`Hey somebody has visit this place`)
+      this.currentuserid = userid
+    }
+  },
+  data () {
+    return {
+      username: '',
+      currentuserid: ''
+    }
+  },
+  created () {
+    console.log(this.usercount)
+  },
+  methods: {
+    join () {
+      if (this.username === '') {
+        alert('Please input username to join')
+      } else {
+        if (this.usercount < 5) {
+          this.$socket.emit('joinuser', {room: 'getthebunny', username: this.username})
+          this.$socket.on('receivemessage', (username) => {
+            console.log()
+            this.$store.commit('getNewuser', {
+              username
+            })
+            console.log(this.usermember)
+            routes.push({
+              path: '/play'
+            })
+          })
+        }
+      }
+    }
+  },
+  computed: mapState([
+    'usercount', 'usermember'
+  ])
+  // {
+  //   userCount () {
+  //     return this.$store.state.usercount
+  //   }
+  // }
+}
+</script>
+
+<!-- Add "scoped" attribute to limit CSS to this component only -->
+<style scoped>
+h1, h2 {
+  font-weight: normal;
+  font-family: 'Pacifico', cursive;
+}
+ul {
+  list-style-type: none;
+  padding: 0;
+}
+li {
+  display: inline-block;
+  margin: 0 10px;
+}
+a {
+  color: #42b983;
+}
+
+.background-home{
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  background-color: #0f6534;
+  max-height: 800px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: row
+}
+.input-site{
+  display: flex;
+  width: 100%;
+  justify-content: center;
+}
+.title{
+  width: 100%;
+  margin-bottom: 20px;
+}
+.form-control{
+  margin-right: 20px !important;
+  padding: 10px !important;
+  font-size: 1.2em !important;
+}
+.title-font{
+  font-size: 120px;
+  color: white;
+}
+
+.btn{
+  padding: 5px 20px !important;
+}
+.images{
+  display: flex;
+  justify-content: space-between;
+  flex-direction: row;
+  align-items: flex-end;
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+}
+
+.image{
+  width: 200px;
+}
+</style>
