@@ -159,8 +159,8 @@
     </div>
     <div class="row justify-content-center" id="control">
       <div class="col-lg">
-        <button class="btn" type="button" name="button" id="hit">Hit</button>
-        <button class="btn" type="button" name="button" id="stand">Stand</button>
+        <button class="btn" v-on:click="hitCard" type="button" name="button" id="hit">Hit</button>
+        <button class="btn" v-on:click="stand" type="button" name="button" id="stand">Stand</button>
         <button class="btn" type="button" name="button" id="newgame">Start New game</button>
       </div>
     </div>
@@ -200,10 +200,20 @@ export default {
     }
   },
   sockets: {
-    receivedCard (payload) {
+    drawCard (payload) {
       // received after 'hit'
       console.log(payload)
       this.cardInHand.push(payload)
+    },
+    standingBy (payload) {
+      console.log(payload)
+      console.log('standing by')
+    },
+    opponentDraw (payload) {
+      console.log(payload.username + ' has drawn a card')
+    },
+    opponentStand (payload) {
+      console.log(payload.username + ' is standing by')
     }
   }
 }

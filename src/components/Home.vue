@@ -23,10 +23,14 @@ export default {
   name: 'HelloWorld',
   sockets: {
     connect: function () {
+      console.log('socket connected')
     },
     userid: function (userid) {
       console.log(`Hey somebody has visit this place`)
       this.currentuserid = userid
+    },
+    welocme () {
+      console.log('welcome')
     }
   },
   data () {
