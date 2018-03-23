@@ -49,7 +49,10 @@ export default {
   created () {
     // Get Users in Firebase
     axios.get('http://localhost:3000/cards/getPlayer').then(response => {
-      this.$store.commit('getuser', response.data.data)
+      if(response.data.data !== null) {
+        this.$store.commit('getuser', response.data.data)
+      }
+      console.log(this.usermember)
     })
   },
   methods: {
